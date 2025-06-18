@@ -1,0 +1,132 @@
+openapi: 3.0.3
+info:
+  title: Blog API
+  version: 1.0.0
+  description: REST API for managing blog posts
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /blogs:
+    get:
+      summary: Get all blogs
+      responses:
+        '200':
+          description: List of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+    post:
+      summary: Create a new blog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogInput'
+      responses:
+        '201':
+          description: Blog created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+  /blogs/{id}:
+    get:
+      summary: Get a blog by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Blog found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+    put:
+      summary: Update a blog by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogInput'
+      responses:
+        '200':
+          description: Blog updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+  /blogs/search/title:
+    get:
+      summary: Search blogs by title
+      parameters:
+        - in: query
+          name: title
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blogs matching the title
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+components:
+  schemas:
+    Blog:
+      type: object
+      properties:
+        id:
+          type: integer
+        blog_title:
+          type: string
+        blog_body:
+          type: string
+        blog_date:
+          type: string
+          format: date
+        blog_author:
+          type: string
+        blog_category:
+          type: string
+    BlogInput:
+      type: object
+      properties:
+        blog_title:
+          type: string
+        blog_body:
+          type: string
+        blog_date:
+          type: string
+          format: date
+        blog_author:
+          type: string
+        blog_category:
+          type: string
+      required:
+        - blog_title
+        - blog_body
+        - blog_date
+        - blog_author
+        - blog_category

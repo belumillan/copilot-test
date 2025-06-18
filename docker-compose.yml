@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: blogdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  liquibase:
+    image: liquibase/liquibase:4.28
+    depends_on:
+      - db
+    #entrypoint: ["/bin/sh", "/liquibase/entrypoint.sh"]
+    volumes:
+      - ./liquibase:/liquibase/changelog
+    working_dir: /liquibase/changelog
+    command: >
+      sh -c "liquibase \
+      --url=jdbc:postgresql://db:5432/blogdb \
+      --changeLogFile=changelog.xml \
+      --username=postgres \
+      --password=password \
+      update && tail -f /dev/null"
+    environment:
+      - LIQUIBASE_LOG_LEVEL=info
+
+  app:
+    build: .
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: password
+      PGDATABASE: blogdb
+      PGPORT: 5432
+      #NODE_ENV: production
+    ports:
+      - "3000:3000"
+    command: npm start
+    # depends_on:
+    #   liquibase:
+    #     condition: service_completed_successfully
+    # restart: unless-stopped
+
+volumes:
+  db_data:
